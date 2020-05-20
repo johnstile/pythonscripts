@@ -1,0 +1,5 @@
+pexpect
+pyserial
+paramiko
+scp
+scpclient
