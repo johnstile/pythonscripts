@@ -1,3 +1,19 @@
+#!/usr/bin/env false
+"""
+Various notes on python for refresher
+Not ment to be run as a script
+"""
+#--------------------------------------
+# Differences between eval and exec
+# eval : execute single dynamically generated expression,  returns the value
+# exec : execute block of dynamically generated code, returns nothing
+eval('37 + a')   # it is an expression
+# Output: 42
+exec('37 + a')
+# No ouput
+exec('a = 47')   # modify a global variable as a side effect
+# No ouput, but now a=47
+
 #--------------------------------------
 # bit O notation
 #
@@ -8,6 +24,12 @@
 # O(1) means "it takes the same amount of time, no matter how big"
 #
 # NOTE: Might help to memorize the Sorting efficentcy... 
+#         Worst    Best     Average
+# Quick   O(n^2)   O(nlogn) O(nlogn)
+# Merge:  O(nlogn) O(n)     O(nlogn)
+# Bubble  O(n^2)   O(n)     O(n^2)
+# Insert  O(n^2)   O(n)     O(n^2)
+# Select  O(n^2)   O(n^2)   O(n^2)
 #================================================
 # time and dates
 import datetime
@@ -19,11 +41,11 @@ elapsed_sec = abs(ts1 - ts2)
 
 #================================================
 # zip
-# - takes 2 iterables
-# - returns several tuples for each
+# - takes 2 iterables of length n
+# - returns n tuples (shorter of two iterables)
 #================================================
 list(zip([1,2,3,4], ['a','b','c']))
-[(1, 'a'), (2, 'b'), (3, 'c')]
+# Out: [(1, 'a'), (2, 'b'), (3, 'c')]
 response = map(''.join, zip(*[iter(string)]*max_width))
 response = list(map('\n'.join, zip(*[iter(string)]*max_width)))
 
@@ -36,6 +58,10 @@ response = list(map('\n'.join, zip(*[iter(string)]*max_width)))
 list(map(lambda i: i*3, [1,2,3,4]))
 [3, 6, 9, 12]
 
+list(map(int, ['1','2','3','4']))
+[1, 2, 3, 4]
+
+# Guido says it is better written in list comprehension
 list(i*3 for i in [1,2,3,4])
 
 #================================================
@@ -50,7 +76,7 @@ list(filter(lambda i: i>5, [2,3,5,6,7]))
 list(x for x in [2,3,5,6,7] if i>5)
 
 #================================================
-# reduce  ****NOT IN PYHTON 3: use for loop****
+# reduce  ****GONE FROM PYHTON 3: use for loop****
 # - takes function + list
 # - acumuliatively apply result to next item inlist
 # - return one result.
@@ -58,16 +84,17 @@ list(x for x in [2,3,5,6,7] if i>5)
 result = reduce( lambda x,y: x+y, [1,2,3,4,5])
 15
 
-# Replace:  List comprehesnion should only return a list 
+# Guido says does not return a list, so it is not list comprehesnion
+
 result = 0
-result+=x for x in [1,2,3,4,5]
-
-
+for x in [1,2,3,4,5]:
+   result += x
+      
 #================================================
-# sorted  
+# sorted
 # - takes list or dict + function
 # - order list by highest result of the function
-# - return list    
+# - return list, does not modify like list.sort()
 #================================================
 mydict = {'a':10, 'b':-2, 'c':5, 'd':0}
 sorted(mydict, key=lambda key: mydict[key])
@@ -90,6 +117,7 @@ sorted([1,2,3,4,5], key=lambda x: -1*x)
 # try:      # small bit of code that could fail
 # except:   # code to execute if try  block failed
 # raise:    # recall the previous exception block
+# else:     # runs, if try was successful
 # finally:  # runs, no matter what outcome of try.
 try:
     pass # some code
@@ -104,39 +132,36 @@ else:
     print("No error occurred")
 finally:
     print("Run this No matter what")
-#================================================
-# regex
-import re
-html = "<p>this that thoes</p>"
-re.findall(r"<[^>]+>", html)
-['<p>', '</p>']
 
-re.sub(r"<(/|)p>", r"<\1foodles>", html)
-'<foodles>this that thoes</foodles>'
 #================================================
-# Closures:
-# - a function + enclosing scope
-# - returns function objects that has private variables
+# closures:
+# - a function 
+# - contains a function with private namespace variables 
 #
 # Namespace in nested functional program
 #  local then global(which is really module namespace)
 # !!! x only exists when function is runs
 #
+x="bla"
 def foo():
     x = "a string"
     def inner():
-        global x # blunt hammer
+        #global x # blunt hammer to use global scope
         x = "b"
         print(x)
     inner()
     print(x)
 
 foo()
+# Output:
+#   b
+#   a string
+
 #================================================
 # Decorators:
-# - takes a function
-# - returns a function and adding a clusre
-# - wrapper around a function
+# - take a function
+# - returns a function
+# - Add clousre
 # - Implemented with classes or closrues
 #==========================================
 def wraps(f):
@@ -151,14 +176,16 @@ def foo(x,y):
     return x + y
 
 foo(2,3)
-
-def print_name(record):
-    print record['fname']
+# Out:
+# (2,3)
+# {}
+# 5
 
 #================================================
 # list comprehention
+# - return a list
 #
-# THERE ARE TREE PARTS TO LIST COMPREHENTION
+# 3 PARTS TO LIST COMPREHENTION
 #  lookslike   where from         condition
 #   ...       ................   ...............
 # [ row       for row in data    if not 0 in row]
@@ -188,8 +215,14 @@ set(['student3', 'student2', 'student1', 'instructor', 'bla'])
 # REF: David Beasly, "Generator For Sysadmins"
 #==========================================
 
+# generatator expression
+g = (x for x in range(10))
+print(sum(g)
+      
 # Wrap list comprehension in ()
 genexp = ( row.split(",")[2].strip() for row in open("classmates.csv") )
+
+)
 
 # Generater functions
 def genfunc():
@@ -239,16 +272,17 @@ def naive_grouper(inputs, n):
     num_groups = len(inputs) // n
     return [tuple(inputs[i*n:(i+1)*n]) for i in range(num_groups)]
 
-# BETTER:  zip drops any odd tiems that don't line up
+# BETTER:  howerver zip drops any odd tiems that don't line up
 def better_grouper(inputs, n):
     """Returns tuples"""
-    # create n refs to same iterator object id
+    # create list of n refs to same iterator object id
     iter_refs = [iter(inputs)] * n
     # iter() is an object with an mem address
-    # [iter()]*2 makes a list of  repated addresses
+    # [iter()]*n makes a list of n repated addresses
     # zip sees n lists pointing to the same id
     # zip takes the first item from ref1   (leaving [2:])
     #     takes the first item from ref2   (leaving [3:])
+    #     ...
     #     takes the first item from ref(n) (leaving [n:])
     # zip makes a tuple of (item1, item2)
     return zip(*iter_refs)
@@ -268,6 +302,7 @@ print ('\n'.join(list([ string[i:i+max_width] for i in range(0, len(string), max
 # ring
 # !
 
+## itertools zip_longest
 # create iter object from string
 # []*width makes a list of the same references to the iter object
 # zip connects the elements of each list
@@ -289,11 +324,8 @@ for word in words:
 # ring
 # !
 
-
+## itertools chain - chain iterators together
 import itertools as it
-it.zip_longest(iter(), fillvalue=1)
-
-## chain - chain iterators together
 a=[1,2,3]
 b=[2,6,8]
 c=[6,8,9]
@@ -302,6 +334,7 @@ print(list( i for i in it.chain(a,b,c)))
 # [1, 2, 3, 2, 6, 8, 6, 8, 9]
 
 ## groupby
+import itertools as it
 things = [
   ("animal", "bear"), 
   ("animal", "duck"), 
@@ -319,7 +352,7 @@ for key, group in it.groupby(things, lambda x: x[0]):
 # speed boat is a vehicle
 # school bus is a vehicle
 
-## combinations
+## itertools combinations
 # Problem: You have 
 #  three $20 dollar bills, 
 #  five $10 dollar bills, 
@@ -338,13 +371,14 @@ for i in range(len(bills)):
     # combinations finds all combos of a given size i
     # sum: add elements of tuple
     # filter: tests for the condition
-    # Set filters repeat cobinations
+    # set removes repeat
     for z in set(filter(lambda x: sum(x) == 100, it.combinations(bills,i))):
         makes_100.append(z)
 
 print(len(makes_100))
 5
-#
+
+## itertools combinations_with_replacement
 # How many ways are there to make change for a $100 bill using any number of
 # $50, $20, $10, $5, and $1 dollar bills?
 #
@@ -354,7 +388,7 @@ print(len(makes_100))
 # - returns an iterator over n-tuples of elements
 # * The return allows elements to be repeated in the tuples it returns
 #   e.g. all $1 bills
-# * The return won't have any duplicates
+# - Won't have any duplicates
 bills = [50, 20, 10, 5, 1]
 makes_100 = []
 for i in range(1,101):
@@ -367,14 +401,15 @@ for i in range(1,101):
 print(len(makes_100))
 #343
 
-# it.permutations
-# - takes iterable
+## itertools permutations
+# - takes iterable and size
 # - returns every permutation
 # Another “brute force” 
 #  n! = n * (n -1) * (n-1) * ... * 2 * 1
-# 
+print(it.permutations('ABCD', 2))
+# OUTPUT: AB AC AD BA BC BD CA CB CD DA DB DC
 
-# it.count
+## ittertools count
 # - takes optional start and step (float and negatives)
 # - returns iterator
 evens = it.count(step=2) # create iterator
@@ -402,7 +437,18 @@ def fibs():
 
 #==========================================
 # collections: 
-# REF https://docs.python.org/3/library/collections.html#deque-objects
+# REF: https://docs.python.org/3/library/collections.html
+
+from collections import namedtuple
+Car = namedtuple('Car', 'color mileage')
+my_car = Car('red', 3812.4)
+print(my_car.color)
+print(my_car.milage)
+
+#==========================================
+# collections: 
+# REF: https://docs.python.org/3/library/collections.html#deque-objects
+# double ended queue
 from collections import deque
 d = deque()
 d.push(1)
@@ -411,4 +457,110 @@ d.pop()
 d.rotate(1)
 d.clear()
 d.extendleft('abc')
+
+## collections defaultdict
+# Guarantees a key
+# Sorting dictionary on key and value (if value is an int)
+# dict iteritems became items in Py3, and the tuple in lambda 
+s = 'ccbbbaade'
+chars = collections.defaultdict(int)
+for c in s:
+    chars[c] += 1
+for i in sorted(chars.items(), key=lambda kv: (-kv[1], kv[0]))[0:3]:
+    print("{} {}".format(*i))
+
+# Also see: collecitons.OrderedDict
+
+#==========================================
+# set:
+# union, intersection, difference and symmetric difference operations,
+engl_s='1 2 3 4 5 6 7 8 9'
+french_s='10 1 2 3 11 21 55 6 8'
+some_s='1 2 3 4'
+eng_sub = set(map(int, engl_s.split()))
+french_sub = set(map(int, french_s.split()))
+some_sub= set(map(int, some_s.split()))
+# set.issubset()
+print( some_sub <= eng_sub )
+# Intersection: in both English and French
+print(len(eng_sub & french_sub))
+#   5
+# Difference: in only English
+print(len(eng_sub - french_sub))
+#   4
+# Symmetric difference: in English or French, not both
+print(len(eng_sub ^ french_sub))
+# Mutating a set:
+#  .update() or |=,
+#  .insertion_update() or &=
+#  .difference_update() or -=
+#  .symetric_difference_update() or ^=
+print(engl_s.issuperset(some_sub))
+
+#==========================================
+# regex
+# REF: https://docs.python.org/3/howto/regex.html
+import re
+html = "<p>this that thoes</p>"
+re.findall(r"<[^>]+>", html)
+['<p>', '</p>']
+
+re.sub(r"<(/|)p>", r"<\1foodles>", html)
+'<foodles>this that thoes</foodles>'
+
+import re
+text = ''
+for _ in range(int(input())):
+    # Readinput, subtract comments
+    text = re.sub(r'<!.+-->',r' ',(text+input()))
+
+# Find HTML Tags (starts with <, followed by non / and multiple non > and ended with >)    
+for er in re.findall(r'<([^/][^>]*)>', text):
+    # when er is ' ',  seperate the tag, attribute, value
+    if ' ' in er:
+        #                        tag        attrib     value
+        for ere in re.findall(r'([a-z]+)? *([a-z-]+)="([^"]+)', er):
+            if ere[0]:
+                print(ere[0])          
+            print('-> '+ere[1]+' > '+ere[2])
+    else:
+        print(er)
+
+# begins with 4,5,6
+# sets of 4 ints
+# optionaly seperated by ' ' or '-'
+# 16 integers
+# No more than 3 repeating ints
+import re
+cards = [
+'7165863385679329',
+'6175824393389297',
+'5252248277877418',
+'9563584181869815',
+'5179123424576876'
+]
+card_pattern = r'^[4-6][0-9]{3}[ -]?([0-9]{4}[ -]?){3}$'
+for card in cards:
+    result = re.search(card_pattern, card)
+    if result:
+        all_digits = ''.join( c for c in card if c not in ' -' )
+        result2 = re.search(r"(\w)\1\1\1", all_digits)
+        if result2:
+            print("Invalid") #:{}".format(card))
+        else:
+            print("Valid") #: {}".format(card))
+    else:
+        print("Invalid") #:{}".format(card))
+
+#================================================
+from html.parser import HTMLParser
+class MyHTMLParser(HTMLParser):
+    def handle_starttag(self, tag, attrs):
+        print(tag)
+        [print('-> {} > {}'.format(*attr)) for attr in attrs]
+        
+html = '\n'.join([input() for _ in range(int(input()))])
+parser = MyHTMLParser()
+parser.feed(html)
+parser.close()
 
