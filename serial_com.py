@@ -150,44 +150,8 @@ class SerialCom(object):
             rtscts=False
         )
 
-        # As pexpect collects data, send to stdout or logger
-        self.p_expect = pexpect.fdpexpect.fdspawn(self.com, logfile=self.logger)
-        if not self.p_expect.isalive():
-            raise Exception("Bad file descriptor")
-
-    def close(self):
-        """Detach serial port"""
-        self.logger.debug("Call close()")
-        if self.p_expect:
-            self.p_expect.close()
-        if self.com and self.com.is_open():
-            self.com.close()
-
-    def open(self):
-        """Attach to serial device"""
-        self.logger.debug("Call open()")
-
-        # If serial port is already open, just return.
-        if self.com and self.com.is_open():
-            return
-
-        # Attach to serial port
-        # timeout: None: wait forever until n bytes, timeout = 0: non-blocking, timeout = x seconds
-        self.com = serial.Serial(
-            port=self.port,
-            baudrate=self.baudrate,
-            timeout=0,
-            parity=serial.PARITY_NONE,
-            bytesize=serial.EIGHTBITS,
-            stopbits=serial.STOPBITS_ONE,
-            xonxoff=False,
-            rtscts=False
-        )
-
-        #self.com.port = self.port
-
         # # Attach to Quatech serial port
-        # self.sConn = serial.serial_for_url(
+        # self.conn = serial.serial_for_url(
         #     'intellisock://192.168.60.107:5000',
         #     port = '/dev/ttyUSB0',
         #     baudrate =115200,
@@ -202,6 +166,14 @@ class SerialCom(object):
         self.p_expect = pexpect.fdpexpect.fdspawn(self.com, logfile=self.logger)
         if not self.p_expect.isalive():
             raise Exception("Bad file descriptor")
+
+    def close(self):
+        """Detach serial port"""
+        self.logger.debug("Call close()")
+        if self.p_expect:
+            self.p_expect.close()
+        if self.com and self.com.is_open():
+            self.com.close()
 
     def logout(self):
         """Logout connections, and do cleanup"""
@@ -400,7 +372,6 @@ def login_and_run_command(s_com=None):
     :param s_com: Serial port instance"""
 
     # Open serial port and login to remote shell
-    #s_com.open()
     s_com.init_com()
 
     s_com.login()
@@ -423,7 +394,6 @@ def follow_console_until(s_com=None, stop_string=None):
     :param stop_string: Instance of SerialCom class
     """
 
-    #s_com.open()
     s_com.init_com()
 
     # Not sure what to put here... read() plus some pExpect?
@@ -438,7 +408,6 @@ def follow_until_timeout(s_com=None, stop_string=None):
     :param stop_string: Instance of SerialCom class
     """
 
-    #s_com.open()
     s_com.init_com()
 
     # Not sure what to put here... read() plus some pExpect?
