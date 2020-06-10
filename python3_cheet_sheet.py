@@ -552,6 +552,16 @@ for card in cards:
     else:
         print("Invalid") #:{}".format(card))
 
+
+# 100000 to 999999
+# Avoid alternating repeat numbers with a look ahead
+regex_integer_in_range = r"^[1-9]\d{5}$"
+regex_alternating_repetitive_digit_pair = r"(\d)(?=\d\1)"
+
+# remove some caracters only between letters,
+# uses a look behind for a word, look ahead for a word, and the stuff in the middle
+matrix_decoded = re.sub(r'(?<=\w)([@#$%!& ]{1,})(?=\w)', ' ', matrix_str)
+
 #================================================
 from html.parser import HTMLParser
 class MyHTMLParser(HTMLParser):
@@ -564,3 +574,8 @@ parser = MyHTMLParser()
 parser.feed(html)
 parser.close()
 
+#================================================
+# pytest
+# https://docs.pytest.org/en/stable/getting-started.html
+# https://docs.python.org/3/library/unittest.html
+#
