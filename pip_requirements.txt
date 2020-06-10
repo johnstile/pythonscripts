@@ -1,5 +1,6 @@
-pexpect
-pyserial
-paramiko
-scp
-scpclient
+pysnmp==4.4.12
+paramiko==2.7.1
+pexpect==4.8.0
+pyserial==3.4
+scp==0.13.2
+scpclient==0.7
