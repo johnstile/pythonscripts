@@ -15,3 +15,9 @@ This will setup a virtualenv named venv3
 ./setup.py
 ```
 
+## Test 
+```.
+This will setup a virtualenv named venv3
+pytest .
+```
+

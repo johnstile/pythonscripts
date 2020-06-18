@@ -4,37 +4,32 @@ Provide serial port communication
 """
 __author__ = 'John Stile'
 
-#------------------------------------------------------------------------------
-# Python imports
-#------------------------------------------------------------------------------
-import os  # to specify log file
 import sys  # for sys.platform (detect os)
 import glob  # to find serial port name
 import re  # matching with pexpect
 import serial  # to talk to serial port
 import pexpect.fdpexpect  # use expect on the serial object
 import pexpect  # to access enums
-import time  # for time.time()
 import logging  # for log facility
-from time import strftime  # get a date
 import unicodedata  # for filtering out terminal formatting chars
-import argparse  # for interactive mode, when running as program
 
 
-def _write(*args, **kwargs):
-    '''Called by the pexpect object to log'''
+def _write(*args):
+    """Called by the pexpect object to log"""
     content = args[0]
     # Ignore other params, pexpect only use one arg
     if content in [' ', '', '\n', '\r', '\r\n']:
-        return # don't log empty lines
+        return  # don't log empty lines
     for eol in ['\r\n', '\r', '\n']:
         # remove ending EOL, the logger will add it anyway
-        content = re.sub('\%s$' % eol, '', content)
-    return logger.info(content) # call the logger info method with the reworked content
+        content = re.sub(r'{}$'.format(eol), '', content)
+    return logging.info(content)  # call the logger info method with the reworked content
+
 
 # our flush method
-def _doNothing():
+def _do_nothing():
     pass
+
 
 class SerialCom(object):
     """Communicate to a remote host over serial
@@ -44,12 +39,12 @@ class SerialCom(object):
     """
 
     def __init__(
-        self,
-        port=None,
-        baudrate=115200,
-        timeout=None,
-        logger=None,
-        debug=False
+            self,
+            port=None,
+            baudrate=115200,
+            timeout=None,
+            logger=None,
+            debug=False
     ):
         self.debug = debug  # print extra stuff
         self.com = None
@@ -66,9 +61,9 @@ class SerialCom(object):
         self.timeout = timeout
         self.p_expect = None
 
-        # Configure serial port
         if self.debug:
-            self.list_serial_ports()
+            # On debug, list the serial ports
+            self.list_serial_ports
 
         if port is not None:
             self.logger.info("Using port: {}".format(port))
@@ -76,23 +71,14 @@ class SerialCom(object):
         else:
             self.logger.debug("Find serial port")
             # List everything
-            port_list = self.list_serial_ports()
+            port_list = self.list_serial_ports
             self.logger.debug("ports: {}".format(port_list))
             # Modern way of finding first available port
             try:
-                 first_serial_device = serial.serial_for_url('hwgrep://.*&skip_busy')
+                first_serial_device = serial.serial_for_url('hwgrep://.*&skip_busy')
             except serial.serialutil.SerialException as e:
-                self.logger.critical(
-                    "\n"
-                    "************************************\n"
-                    "************************************\n"
-                    "************************************\n"
-                    "***Check cables: Serial Not found***\n"
-                    "************************************\n"
-                    "************************************\n"
-                    "************************************\n"
-                )
-                raise
+                self.logger.critical("***Check cables: Serial Not found***")
+                raise e
             self.port = first_serial_device.port
             self.logger.debug("Using port: {}".format(self.port))
             # Old way of finding port
@@ -104,6 +90,7 @@ class SerialCom(object):
                         self.port = i
                         break
 
+    @property
     def list_serial_ports(self):
         """ Lists serial port names
 
@@ -194,7 +181,7 @@ class SerialCom(object):
         """Login to the getty on the serial port"""
         self.logger.debug("Call login()")
 
-        username =  'pi'
+        username = 'pi'
         password = 'raspberry'
         retry = 5
 
@@ -235,7 +222,6 @@ class SerialCom(object):
         """
         self.logger.debug("Call run(cmd):{}".format(cmd))
         exit_status = 0
-        lines = ''
 
         # Send the command
         self.p_expect.sendline(cmd)
@@ -249,12 +235,14 @@ class SerialCom(object):
             lines = "EOF"
         elif index == 2:
             lines = "TIMEOUT"
+        else:
+            lines = ''
 
         return exit_status, lines
 
     def read_until(self, stop_string=None, read_again_limit=120):
         """Read data from the serial port, stop when we see stop_string.
-        :param stop_string (list or string): terminate read when string is found.
+        :param stop_string: terminate read when string is found.
         :param read_again_limit: Allow this many timeouts before giving up
         :return Ture if stop_string found, False if read_again_limit reached
         """
@@ -271,7 +259,7 @@ class SerialCom(object):
         read_again = True
         read_again_counter = 0
 
-        spinner = self.spinning_cursor()
+        # spinner = self.spinning_cursor()
 
         while read_again:
 
@@ -279,7 +267,7 @@ class SerialCom(object):
                 self.logger.debug("not readable")
                 read_again = False
 
-            # FIX LATER: This is delying serial port buffer until it is full.
+            # FIX LATER: This is delaying serial port buffer until it is full.
             # # Spin the spinner
             # for _ in range(8):
             #     sys.stdout.write(spinner.next())
@@ -287,7 +275,7 @@ class SerialCom(object):
             #     time.sleep(0.01)
             #     sys.stdout.write('\b')
 
-            # i will be the matched element in the list passed to .expect()
+            # This will be the matched element in the list passed to .expect()
             # First element is our stop_string is our pattern
             # Second element is hit if nothing matches an expected pattern after a time, we keep a counter
             # Third element is hit if the child died and all output has been read.
@@ -317,7 +305,7 @@ class SerialCom(object):
 
         return result
 
-    def pexpect_write(self, *args, **kwargs):
+    def pexpect_write(self, *args):
         """write method used by pexpect to writes to logging.logger"""
 
         #
@@ -328,37 +316,40 @@ class SerialCom(object):
         #
         # split the buffer based on CR+LF
         #
-        lines = self.console_chunk_buffer.split(b"\r\n")
+        lines_buffer = self.console_chunk_buffer.split(b"\r\n")
 
         #
         # Read up to the last line, writing to the logger
         # INFO SHOWS WHAT CAME OVER THE SERIAL PORT
         #
-        for line in lines[:-1]:
+        for lines in lines_buffer[:-1]:
             # Some output has \r or \r\n which does not display corectly.
-            if (b'\n' in line) or (b'\r' in line):
-                line = line.replace(b'\r', b'\n').replace(b'\n\n', b'\n')
-                for l in line.split(b'\n'):
-                    l_strip = self.remove_control_characters(l)
+            if (b'\n' in lines) or (b'\r' in lines):
+                lines = lines.replace(b'\r', b'\n').replace(b'\n\n', b'\n')
+                for line in lines.split(b'\n'):
+                    l_strip = self.remove_control_characters(line)
                     if l_strip:
                         self.logger.info("{}".format(l_strip))
             else:
-                l_strip = self.remove_control_characters(line)
+                l_strip = self.remove_control_characters(lines)
                 if l_strip:
                     self.logger.info("{}".format(l_strip))
-        #
-        # Save last element for the next pexpect write() call.
-        #
-        self.console_chunk_buffer = lines[-1]
+
+        # last element is partial line
+        self.console_chunk_buffer = lines_buffer[-1]
 
     def pexpect_flush(self):
         """Flush method called by pexpect does nothing"""
         pass
 
-    def remove_control_characters(self,s):
-        """Should filter unprintable control characters"""
+    @staticmethod
+    def remove_control_characters(s):
+        """Should filter unprintable control characters
+        :param s: string literal
+        :return: string
+        """
         s = str(s, "utf-8")
-        return "".join(ch for ch in s if unicodedata.category(ch)[0]!="C")
+        return "".join(ch for ch in s if unicodedata.category(ch)[0] != "C")
 
     def spinning_cursor(self):
         """Show a spinner """
@@ -457,7 +448,7 @@ if __name__ == "__main__":
     )
 
     # Create serial instance on auto-detected interface
-    #s_com = SerialCom(baudrate=SERIAL_BAUD, timeout=SERIAL_TIMEOUT, logger=log, debug=True)
+    # s_com = SerialCom(baudrate=SERIAL_BAUD, timeout=SERIAL_TIMEOUT, logger=log, debug=True)
 
     # --------------------
     # Run the tests
@@ -467,7 +458,7 @@ if __name__ == "__main__":
     # login_and_run_command(s_com)
 
     # Monitor system when booted to initialized UTP device interface
-    #follow_console_until(s_com, stop_string="g_mass_storage gadget: high-speed config #1: Linux File-Backed Storage")
+    # follow_console_until(s_com, stop_string="g_mass_storage gadget: high-speed config #1: Linux File-Backed Storage")
     follow_until_timeout(s_com, stop_string='login:')
 
     # # this works:
@@ -475,5 +466,4 @@ if __name__ == "__main__":
     # follow_console_until(s_com, stop_string="Done")
 
     # ssh shell, do: apt-get update  > /dev/ttyS0
-    #follow_console_until(s_com, stop_string="Done")
-
+    # follow_console_until(s_com, stop_string="Done")

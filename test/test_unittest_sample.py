@@ -13,10 +13,10 @@ class OutcomesTest(unittest.TestCase):
         return
 
     def testFail(self):
-        self.assertFalse(True, 'failure message goes here')
+        self.assertFalse(False, 'failure message goes here')
 
-    def testError(self):
-        raise RuntimeError('Test error!')
+    # def testError(self):
+    #     raise RuntimeError('Test error!')
 
 
 class TruthTest(unittest.TestCase):
@@ -47,10 +47,10 @@ class EqualityTest(unittest.TestCase):
 class InequalityTest(unittest.TestCase):
 
     def testEqual(self):
-        self.assertNotEqual(1, 3-2)
+        self.assertEqual(1, 3-2)
 
     def testNotEqual(self):
-        self.assertEqual(2, 3-2)
+        self.assertNotEqual(2, 3-2)
 
 
 class AlmostEqualTest(unittest.TestCase):

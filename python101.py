@@ -562,6 +562,24 @@ regex_alternating_repetitive_digit_pair = r"(\d)(?=\d\1)"
 # uses a look behind for a word, look ahead for a word, and the stuff in the middle
 matrix_decoded = re.sub(r'(?<=\w)([@#$%!& ]{1,})(?=\w)', ' ', matrix_str)
 
+
+# valid email:
+import re
+import email.utils
+email_str = r'^[a-z][0-9a-z-\._]+@[a-z]+\.[a-z]{1,3}$'
+email_regex = re.compile(email_str)
+num_inputs = int(input())
+test_input = []
+for i in range(num_inputs):
+     test_input.append(str(input()))
+     
+for input_str in test_input:
+    parsed = email.utils.parseaddr(input_str)
+    if not '' in parsed:
+        if email_regex.search(parsed[1]):
+            print("valid:{}".format(email.utils.formataddr(parsed)))
+
+
 #================================================
 from html.parser import HTMLParser
 class MyHTMLParser(HTMLParser):
@@ -579,3 +597,108 @@ parser.close()
 # https://docs.pytest.org/en/stable/getting-started.html
 # https://docs.python.org/3/library/unittest.html
 #
+
+#================================================
+# Distributing
+#  https://setuptools.readthedocs.io/en/latest/setuptools.html
+#  https://packaging.python.org/tutorials/packaging-projects/
+#
+mkdir -p packaging_tutorial/example_pkg/tests
+touch packaging_tutorial/example_pkg/__init__.py
+touch packaging_tutorial/{LICENSE,README.md,setup.py}
+tree --charset ascii packaging_tutorial/
+  packaging_tutorial/
+  |-- example_pkg
+  |   |-- __init__.py
+  |   `-- tests
+  |-- LICENSE
+  |-- README.md
+  `-- setup.py
+
+cat > packaging_tutorial/setup.py <<'EOF'
+import setuptools
+
+with open("README.md", "r") as fh:
+    long_description = fh.read()
+
+setuptools.setup(
+    name="example-pkg-YOUR-USERNAME-HERE", # distribution name of your package
+    version="0.0.1",  # see PEP 440 https://www.python.org/dev/peps/pep-0440
+    author="Example Author",
+    author_email="author@example.com",
+    description="A small example package",  # one-sentence summary of the package
+    long_description=long_description,
+    long_description_content_type="text/markdown",
+    url="https://github.com/pypa/sampleproject",
+    packages=setuptools.find_namespace_packages(),
+    classifiers=[
+        "Programming Language :: Python :: 3",
+        "License :: OSI Approved :: MIT License",
+        "Operating System :: OS Independent",
+    ],
+    python_requires='>=3.6',
+    scripts=["say_hello.py"],
+
+    scripts=["myapp.py"],
+    
+    # Project uses reStructuredText, so ensure that the docutils get
+    # installed or upgraded on the target machine
+    install_requires=["docutils>=0.3"],
+    package_data={
+        # If any package contains *.txt or *.rst files, include them:
+        "stations": ["stations_example.json", "stations.json"],
+        # And include any *.msg files found in the "hello" package, too:
+        "hello": ["*.msg"],
+    },
+    
+)
+EOF
+
+cat > packaging_tutorial/README.md <<'EOF'
+# Example Package
+
+This is a simple example package. You can use
+[Github-flavored Markdown](https://guides.github.com/features/mastering-markdown/)
+to write your content.
+EOF
+
+cat > packaging_tutorial/LICENSE <<'EOF'
+Copyright (c) 2018 The Python Packaging Authority
+
+Permission is hereby granted, free of charge, to any person obtaining a copy
+of this software and associated documentation files (the "Software"), to deal
+in the Software without restriction, including without limitation the rights
+to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+copies of the Software, and to permit persons to whom the Software is
+furnished to do so, subject to the following conditions:
+
+The above copyright notice and this permission notice shall be included in all
+copies or substantial portions of the Software.
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+SOFTWARE.
+EOF
+
+#
+# Generate distribution archive
+#
+pushd packaging_tutorial
+python3 setup.py sdist bdist_wheel
+python3 setup.py bdist
+
+#
+# Look at the product
+#
+ls -alF dist/
+
+    total 16
+    drwxr-xr-x 2 jstile jstile 4096 Jun 10 15:32 ./
+    drwxr-xr-x 6 jstile jstile 4096 Jun 10 15:32 ../
+    -rw-r--r-- 1 jstile jstile 2515 Jun 10 15:32 example_pkg_YOUR_USERNAME_HERE-0.0.1-py3-none-any.whl
+    -rw-r--r-- 1 jstile jstile 1197 Jun 10 15:32 example-pkg-YOUR-USERNAME-HERE-0.0.1.tar.gz
+
