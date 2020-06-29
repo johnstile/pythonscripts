@@ -15,8 +15,35 @@ exec('a = 47')   # modify a global variable as a side effect
 # No ouput, but now a=47
 
 #--------------------------------------
+# Input space seperated list of ints form keyboard
+N = list(map(int, input().split(' ')))
+# Input space seperated list of ints form keyboard, toss out first
+N = list(map(int, input().split(' ')[1:]))
+# Input strings into words
+list_of_words = input().rstrip().split()
+#--------------------------------------
+# Recursion Anatomy:
+# - base_case: exit condition, return a value
+# - recursive_case: return call_Self()
+# State:
+# - pass in state,
+# - make state global
+
+# Stat: passed in state as n
+def factorial(n):
+  # BASE Case: exits recursion, returns state
+  if n == 0:
+    return 1  # Wacky factorial rule
+  if n == 1:
+    return n
+  # RECURSIVE Case: calls self
+  return n * factorial(n-1)
+
+factorial(7)
+#
 # Generator to make list of lists
 #
+
 def listOfLists(n):
   if n:
     yield []
