@@ -15,6 +15,45 @@ exec('a = 47')   # modify a global variable as a side effect
 # No ouput, but now a=47
 
 #--------------------------------------
+# Generator to make list of lists
+#
+def listOfLists(n):
+  if n:
+    yield []
+    yield from listOfLists(n-1)
+
+print(list(listOfLists(4)))
+
+# list of 0 or 1
+# get all routes to end
+# can only step on '0'
+# can only step to n+1 or n+2
+# SOLUTION: recurisive generator
+def step_to_index(n, cur_list, c, last_n):
+    cur_list.append(n)
+    # Condition to leave
+    if n == last_n:
+        yield(cur_list)
+    # Next steps
+    step = n + 1
+    if step <= last_n and c[step] == 0:
+        yield from step_to_index(step, list(cur_list), c, last_n)
+    # Next steps
+    step = n + 2
+    if step <= last_n and c[step] == 0:
+        yield from step_to_index(step, list(cur_list), c, last_n)
+
+c = [0, 1, 0, 1, 0, 1, 0, 1, 0]
+last_n = len(c) -1
+print(list(step_to_index(0, [], c, last_n)))
+# OUPUT: [[0, 2, 4, 6, 8]]
+
+c = [0, 1, 0, 0, 0, 1, 0, 1, 0]
+last_n = len(c) -1
+print(list(step_to_index(0, [], c, last_n)))
+# OUPUT: [[0, 2, 3, 4, 6, 8], [0, 2, 4, 6, 8]]
+
+#--------------------------------------
 # bit O notation
 #
 # Lookup speed
@@ -48,6 +87,12 @@ list(zip([1,2,3,4], ['a','b','c']))
 # Out: [(1, 'a'), (2, 'b'), (3, 'c')]
 response = map(''.join, zip(*[iter(string)]*max_width))
 response = list(map('\n'.join, zip(*[iter(string)]*max_width)))
+
+# trick: dict from 2 lists of equal size
+list_1 = ["A","B","C"]
+list_2 = [1,2,3]
+dictionary = dict(zip(list_1, list_2))
+# Out: {'B': 2, 'A': 1, 'C': 3}
 
 #================================================
 # map
@@ -92,7 +137,7 @@ for x in [1,2,3,4,5]:
       
 #================================================
 # sorted
-# - takes list or dict + function
+# - takes list or dict and function
 # - order list by highest result of the function
 # - return list, does not modify like list.sort()
 #================================================
