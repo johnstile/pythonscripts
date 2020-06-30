@@ -1,4 +1,6 @@
-#!/usr/bin/env false
+#!/usr/bin/env python
+import sys
+sys.exit(0)
 """
 Various notes on python for refresher
 Not ment to be run as a script
@@ -521,14 +523,35 @@ print(my_car.milage)
 # collections: 
 # REF: https://docs.python.org/3/library/collections.html#deque-objects
 # double ended queue
+#
+# Operaitons return the value they they remove from the deque
+#
 from collections import deque
 d = deque()
-d.push(1)
-d.pushleft(0)
+
+# Add to the right
+d.append(1)
+d.append(2)
+# deque([1, 2])
+
+# Add to the left
+d.appendleft(0)
+# deque([0, 1, 2])
+
+# Remove from right
 d.pop()
+
+# Remove from left
+d.popleft()
+
+# Shift over
 d.rotate(1)
+
+# Clear
 d.clear()
+
 d.extendleft('abc')
+#  deque(['c', 'b', 'a', 1, 1, 2, 0])
 
 ## collections defaultdict
 # Guarantees a key

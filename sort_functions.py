@@ -65,25 +65,22 @@ def selection_sort(arr):
 
 
 def bubble_sort(arr):
-    """
-    Step though list sequentially to the end, swaps adjacent if left is greater.
+    """Quadradic: O( n^2 ), 
+    Step though whole list sequentially to the end, swaps adjacent if left is greater.
     Optimized: if no swaps in a round, the list is sorted (could save iterations)
-    Worst case complexity of O(n²)
     :param list
     :return sorted list
     """
     result = arr.copy()
-    continue_sorting = True
-    while continue_sorting:
-        swap_count = 0  # When nothing changes array is sorted
-        for i in range(len(result)):
-            if i < len(result) - 1:
-                if result[i] > result[i + 1]:
-                    swap_count += 1
-                    result[i], result[i + 1] = result[i + 1], result[i]
-
-        if swap_count == 0:
-            continue_sorting = False
+    swapped = True
+    while swapped:
+        # When nothing changes array is sorted
+        swap_count = False
+        for i in range(len(result)-1):
+            if result[i] > result[i + 1]:
+                swap_count True 
+                result[i], result[i + 1] = result[i + 1], result[i]
+                swap_count = True 
 
     return result
 
@@ -119,39 +116,53 @@ def inseration_sort(arr):
 
 
 # -----------------------------
+# -----------------------------
 def merge_sort(arr):
-    """
-    Divide and Conquer, recursively
+    """Quasilinear: O(n log n)
+    Part2 
     Split array by half until you have 2 element lists
-    Order the two elements
-    join the elements
+    Recursviely call self until individual elements
+    Call merge once split
     :param arr:
     :return: sorted array
     """
-
+    # Base case returns state
     if len(arr) < 2:
         return arr
     else:
-        halfway_index = len(arr) // 2  # Finding the halfway_index of the array
+        halfway_index = len(arr) // 2  # Finding halfway_index
         left = arr[:halfway_index]
         right = arr[halfway_index:]
 
-        # Continue to Break into smaller arrays
+        # Continue to Split in half Recursively
         left = merge_sort(left)  # Sorting the first half
         right = merge_sort(right)  # Sorting the second half
 
-        # Join 2 arrays, sorting element by element
+        #
+        # At this point everything has been split
+        #
+
+        # Merge 2 arrays, sorting element by element
         sorted_arr = merge(left, right)
         return sorted_arr
 
 
 def merge(left, right):
+    """
+    Part2 
+    Order the two elements
+    Join the elements
+    :param left: list
+    :param right: list
+    :return: semi-sorted list swith remainder tacked on
+    """
     len_l = len(left)
     len_r = len(right)
     il = 0
     ir = 0
     merged = []
-    # Find smallest
+
+    # sorts pairs of elments
     while il < len_l and ir < len_r:
         if left[il] <= right[ir]:
             merged.append(left[il])
@@ -159,16 +170,15 @@ def merge(left, right):
         else:
             merged.append(right[ir])
             ir += 1
-    # Sort the remaining
-    while il < len_l:
-        merged.append(left[il])
-        il += 1
-    while ir < len_r:
-        merged.append(right[ir])
-        ir += 1
+
+    # Merge remainder
+    if il < len_l:
+        merged.extend(left[il:])
+
+    if ir < len_r:
+        merged.extend(right[ir:])
 
     return merged
-
 
 # -----------------------------
 def quick_sort(arr):
