@@ -158,7 +158,7 @@ class IntellisockSerial(SerialBase):
             self._socket.setsockopt(socket.IPPROTO_TCP, socket.TCP_NODELAY, 1)
         except Exception as msg:
             raise SerialException(
-                "Could not open port %s: %s" % (self.portstr, msg)
+                "Could not open port {}: {}".format(self.portstr, msg)
             )
         self._socket.settimeout(self._network_timeout)
 
@@ -180,12 +180,12 @@ class IntellisockSerial(SerialBase):
         #
         if self.logger:
             self.logger.info(
-                'pySerial Intellisock reader thread for %s' % (self._port,)
+                'pySerial Intellisock reader thread for {}'.format(self._port,)
             )
         self._thread = threading.Thread(target=self._intellisock_read_loop)
         self._thread.setDaemon(True)
         self._thread.setName(
-            'pySerial Intellisock reader thread for %s' % (self._port,)
+            'pySerial Intellisock reader thread for {}'.format(self._port,)
         )
         self._thread.start()
         #
@@ -572,7 +572,7 @@ class IntellisockSerial(SerialBase):
                 # Rais SerialException if conneciton fails,
                 # so that caller can catch the exception
                 raise SerialException(
-                    "connection failed (socket error): %s" % e
+                    "connection failed (socket error): {}".format(e)
                 )
         finally:
             self._write_lock.release()
@@ -696,7 +696,11 @@ class IntellisockSerial(SerialBase):
             raise portNotOpenError
         if self.logger:
             self.logger.info(
-                'set BREAK to %s' % ('inactive', 'active')[bool(level)]
+                (
+                    'set BREAK to {}'
+                ).format(
+                    ('inactive', 'active')[bool(level)]
+                )
             )
         if level:
             self._socket.sendall(
@@ -721,7 +725,11 @@ class IntellisockSerial(SerialBase):
             raise portNotOpenError
         if self.logger:
             self.logger.info(
-                'set RTS to %s' % ('inactive', 'active')[bool(level)]
+                (
+                    'set RTS to {}'
+                ).format(
+                    ('inactive', 'active')[bool(level)]
+                )
             )
         # xxxx Not implemented for Intellisock
         # if level:
@@ -736,7 +744,11 @@ class IntellisockSerial(SerialBase):
             raise portNotOpenError
         if self.logger:
             self.logger.info(
-                'set DTR to %s' % ('inactive', 'active')[bool(level)]
+                (
+                    'set DTR to {}'
+                ).format(
+                    ('inactive', 'active')[bool(level)]
+                )
             )
         # xxxx Not implemented for Intellisock
         # if level:
@@ -751,7 +763,7 @@ class IntellisockSerial(SerialBase):
         This reads packets from the socket
 
         Data packets have a
-        1. header,
+        1. header
         2. Parameters (cmd and data-size)
         3. Data
 
@@ -796,8 +808,8 @@ class IntellisockSerial(SerialBase):
                 # tracking parts of message with state machine
                 #
                 for byte in data:
-                    # print "data %d" % struct.unpack("!B", byte)
-                    # print "mode %s" % mode
+                    # print( "data {}".format(struct.unpack("!B", byte)))
+                    # print( "mode {}".format(mode) )
 
                     #
                     # State machine mode starts at M_READ_HEADER
@@ -941,7 +953,7 @@ class IntellisockSerial(SerialBase):
                             [wcommand, ] = [i for i in list(self.com.ctrl.keys()) if
                                             self.com.ctrl[i] == struct.pack("!B", command)[0]]
                             if self.logger:
-                                self.logger.info("Command: %s" % wcommand)
+                                self.logger.info("Command: {}".format(wcommand))
                             #
                             # Send Acknowledgement
                             #
@@ -998,14 +1010,14 @@ else:
 # simple client test
 if __name__ == '__main__':
     s = Serial('intellisock://localhost:5000', 115200)
-    sys.stdout.write('%s\n' % s)
+    sys.stdout.write('{}\n'.format(s))
 
     # ~ s.baudrate = 1898
 
     sys.stdout.write("write...\n")
     s.write("hello\n")
     s.flush()
-    sys.stdout.write("read: %s\n" % s.read(5))
+    sys.stdout.write("read: {}\n".format(s.read(5)))
 
     # ~ s.baudrate = 19200
     # ~ s.databits = 7
